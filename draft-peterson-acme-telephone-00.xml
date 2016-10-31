@@ -70,7 +70,15 @@ vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
                 <email>jon.peterson@neustar.biz</email>
             </address>
         </author>
+		
+	    <author fullname="Richard Barnes" initials="R." surname="Barnes">
+      <organization>Mozilla</organization>
 
+      <address>
+
+        <email>rlb@ipv.sx</email>
+      </address>
+    </author>
 
     <date year="2016" />
 
@@ -105,10 +113,11 @@ vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
 	to issue certificates with these extensions, this specification defines extensions to ACME suitable to enable certificate authorities to validate effective control of numbering resources
 	and to issue corresponding certificates.
 	</t><t>
-	However, note that the aim of the ACME challenges described in this document are not to prove the assignment and delegation of resources in the telephone network: it is instead to establish whether
-	Internet-enabled entites have effective control over the devices associated with those resources. These credentials are not mutual exclusive with credentials delegated from national
-	authorities, and in fact for the purposes of a call set-up protocol like SIP, there may be multiple attestations (for example, multiple SIP Identity header fields) signed by different
-	parties.
+	Note that the aim of the initial challenges specified in this document is not to prove the assignment and delegation of resources in the telephone network: 
+	it is instead to establish whether
+	Internet-enabled entites have effective control over the devices associated with those resources. Such credentials are not mutually exclusive with credentials delegated from national
+	authorities, and future versions of this specification will explore issuance of those credentials as well.
+	For the purposes of a call set-up protocol like SIP, there may be multiple attestations (for example, multiple SIP Identity header fields) signed by different parties.
 	</t>
     </section> 
 	
@@ -124,7 +133,7 @@ vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
       <t>In order to issue certificates for telephone numbers with ACME, a new ACME identifier type for telephone numbers is required for use in ACME authorization objects.
 	  The baseline ACME specification only defines one type of identifier, for a fully-qualified domain name ("dns"). This document thus defines a new ACME identifier type 
 	  for telephone numbers ("tn"). This represents a telephone number, specifically a number of the type that is specified in the TN Authorization List certificate extension
-	  of <xref target="I-D.ietf-stir-certificates"/>.
+	  of <xref target="I-D.ietf-stir-certificates"/> for E164Number.
 	  </t><t>
 	  
 	  </t>
@@ -133,15 +142,13 @@ vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
 	  {
   "status": "valid",
   "expires": "2015-03-01T14:09:00Z",
-
   "identifier": {
     "type": "tn",
     "value": "2125551212"
   },
-
   "challenges": [
     {
-      "type": "sms-01",
+      "type": "sms-link-00",
       "status": "valid",
       "validated": "2014-12-01T12:05:00Z",
       "keyAuthorization": "SXQe-2XODaDxNR...vb29HhjjLPSggwiE"
@@ -165,12 +172,16 @@ vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
 	Because the assignment of numbering resources can change over time, demonstrations of effective control must be regularly refreshed -- though again, because of the diverse capabilities
 	of the devices involved, different schemes for refreshing the challenge, ones that require less direct user supervision, may be available to some devices and not others.
 	</t>
-	 <section anchor="route" title="Telephone Number Routability Validation">
+	 <section anchor="route" title="Web-Based Telephone Number Routability Validation">
       <t>
-	  With basic telephone number routability validation, the client in an ACME transaction proves its control over a telephone by proving that it can receive traffic sent to that telephone number over the PSTN. The ACME server challenges the client to dereference a URI containing a token that is sent to the client over SMS. Typically that token will be 
-	  embedded in a URL that the end user will dereference in order to be guided to a web resource that will enable account creation with the CA.
+	  With web-based telephone number routability validation, the client in an ACME transaction proves its control over a telephone number by proving that it can receive traffic sent to that number over the PSTN. The ACME server challenges the client to dereference a URL containing a token that is sent to the client over SMS. Typically that token will be 
+	  embedded in a URL that the end user will 
+	   visit in order to be guided to a web resource that will enable account creation
+       with the CA.  By allowing a user action to complete the challenge, this
+       validation method supports the use of ACME with SMS endpoints that do not
+       support automated response to challenges.
 	  <list><t>
-	  type (required, string): The string "sms-01"
+	  type (required, string): The string "sms-link-00"
 	  	  </t><t>
 		  token (required, string):
     A random value that uniquely identifies the challenge. This value MUST have at least 128 bits of entropy, in order to prevent an attacker from guessing it. It MUST NOT contain any characters outside the URL-safe Base64 alphabet and MUST NOT contain any padding characters ("=").
@@ -180,25 +191,32 @@ vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
 	  	  	<figure>
         <artwork><![CDATA[
 		{
-  "type": "sms-01",
-  "token": "evaGxfADs6pSRb2LAv9IZf17Dt3juxGJ-PCt92wr-oA"
+  "type": "sms-link-00",
 }
 	  	  ]]></artwork>
       </figure>
 	  <t>
-	  A client responds to this challenge by dereferencing the URI chosen by the ACME server. For this challenge, this may lead to an out-of-band requirement for the client to create
-	  a user account through human interaction. 
+	  A client's response to this challenge simply acknowledges that it is ready to receive the validation SMS from the server.
+	  </t><t>
+	  On receiving a response, the server sends an SMS message to the TN being validated containing a URL that the client must have a user access in order to complete the challenge. This URL is intended to be opened in a web browser so that the user can have an interaction with the CA; it is not sufficient for the client to simply send a GET request to the URL.
+	 </t><t>
+     To validate an "sms-link" challenge, the server verifies that a user has visited the URL included in the SMS message and completed any steps specified there.
 	  </t>
     </section>
 	
 	<section anchor="suppress" title="Advanced Routability Validating">
-      <t>Future versions of this specification will explore ways to increase the automation of the challenge process when the client device has an application capable
-	  of creating ACME accounts and requesting certificates to be issued.</t>
+      <t>Future versions of this specification will explore ways to increase the automation of the challenge process when the client device has an application capable of creating ACME accounts and requesting certificates to be issued. This will likely follow the token / key-authorization pattern of the challenges defined for DNS names, except that the token and key authoriation will be passed in SMS instead of HTTP, TLS, or DNS.</t>
     </section>
 	
 	<section anchor="range" title="Telephone Number Range Validation">
       <t>Future versions of this specification will explore ways to validate bulk allocations of telephone numbers such as those used by IP PBXs.</t>
     </section>
+	
+	<section anchor="auth" title="Authority Based Validation">
+      <t>Future versions of this specification will also explore ways that various numbering authorities could attest ownership over numbering resources, and ways that
+	  the assignees of numbers could coordinate with those authorities to satisfy ACME challenges and receive certificates.</t>
+    </section>
+	
 	</section>
 	
     <section anchor="Acknowledgments" title="Acknowledgments">
@@ -226,7 +244,6 @@ vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
     1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
     2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
        (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
-
     Both are cited textually in the same manner: by using xref elements.
     If you use the PI option, xml2rfc will, by default, try to find included files in the same
     directory as the including file. You can also define the XML_LIBRARY environment variable
@@ -247,4 +264,4 @@ vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
 
 
   </back>
-</rfc>
+</rfc
