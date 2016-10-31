@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!--
+vim:et:ts=2:sw=2:spell:spelllang=en:tw=80
+-->
+<!-- This template is for creating an Internet Draft using xml2rfc,
+    which is available here: http://xml.resource.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+
+<!ENTITY I-D.ietf-stir-rfc4474bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-stir-rfc4474bis.xml">
+<!ENTITY I-D.ietf-stir-certificates SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-stir-certificates.xml">
+<!ENTITY I-D.ietf-stir-passport SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-stir-passport.xml">
+<!ENTITY I-D.peterson-modern-teri SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.peterson-modern-teri.xml">
+<!ENTITY I-D.rescorla-stir-fallback SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.rescorla-stir-fallback.xml">
+<!ENTITY I-D.ietf-acme-acme SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-acme-acme.xml">
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC7340 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7340.xml">
+
+]>
+<!--?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?-->
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+    please see http://xml.resource.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+    (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<!--?rfc strict="yes" ?-->
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="mp"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space 
+    (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="no" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+<rfc category="info" docName="draft-peterson-acme-telephone-00.txt"
+     ipr="trust200902">
+  <!-- category values: std, bcp, info, exp, and historic
+    ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+       or pre5378Trust200902
+    you can add the attributes updates="NNNN" and obsoletes="NNNN" 
+    they will automatically be output with "(if approved)" -->
+
+  <!-- ***** FRONT MATTER ***** -->
+
+  <front>
+    <!-- The abbreviated title is used in the page header - it is only necessary if the 
+         full title is longer than 39 characters -->
+
+    <title abbrev="ACME for TNs">ACME Identifiers and Challenges for Telephone Number </title>
+
+        <author initials="J." surname="Peterson" fullname="Jon Peterson">
+            <organization abbrev="Neustar">Neustar, Inc.</organization>
+            <address>
+                <postal>
+                    <street>1800 Sutter St Suite 570</street>
+                    <city>Concord</city>
+                    <region>CA</region>
+                    <code>94520</code>
+                    <country>US</country>
+                </postal>
+                <email>jon.peterson@neustar.biz</email>
+            </address>
+        </author>
+
+
+    <date year="2016" />
+
+    <!--    <area>
+    Security
+    </area>-->
+
+    <keyword>SIP</keyword>
+
+
+
+    <abstract>
+      <t>
+	  This document specifies identifiers and challenges required to enable the Automated Certificate Management Environment (ACME) to issue certificate for telephonoe numbers. 
+	  </t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+	<t>
+	<xref target="I-D.ietf-acme-acme"/> is a mechanism for automating certificate management on the Internet. It enables administrative entities to prove effective control over
+	resources like domain names, and automtes the process of generating and issuing certificates.
+	</t><t>
+    The <xref target="RFC7340">STIR problem statement</xref> identifies the need for Internet credentials that can attest authority for telephone numbers in order to detect 
+	impersonation, which is currently an enabler for common attacks associated with illegal robocalling, voicemail hacking, and swatting. These credentials are used to sign
+	<xref target="I-D.ietf-stir-passport">PASSporTs</xref>, which may be carried in using protocols such as <xref target="I-D.ietf-stir-rfc4474bis">SIP</xref> or delivered outside
+	of the signaling channel of call setup <xref target="I-D.rescorla-stir-fallback"/>. Currently, the only defined credentials for this purpose are the certificates specified in
+	<xref target="I-D.ietf-stir-certificates"/>. 
+	</t><t>
+	<xref target="I-D.ietf-stir-certificates"/> describes certificate extensions suitable for associating telephone numbers with certificates. To help enable certificate authorities
+	to issue certificates with these extensions, this specification defines extensions to ACME suitable to enable certificate authorities to validate effective control of numbering resources
+	and to issue corresponding certificates.
+	</t><t>
+	However, note that the aim of the ACME challenges described in this document are not to prove the assignment and delegation of resources in the telephone network: it is instead to establish whether
+	Internet-enabled entites have effective control over the devices associated with those resources. These credentials are not mutual exclusive with credentials delegated from national
+	authorities, and in fact for the purposes of a call set-up protocol like SIP, there may be multiple attestations (for example, multiple SIP Identity header fields) signed by different
+	parties.
+	</t>
+    </section> 
+	
+	<section title="Terminology">
+
+	      <t>In this document, the key words "MUST", "MUST NOT", "REQUIRED",
+      "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+      RECOMMENDED", "MAY", and "OPTIONAL" are to be interpreted as described
+      in <xref target="RFC2119"/>.</t>
+    </section> 
+	
+    <section anchor="ident" title="Telephone Number Identifier Type">
+      <t>In order to issue certificates for telephone numbers with ACME, a new ACME identifier type for telephone numbers is required for use in ACME authorization objects.
+	  The baseline ACME specification only defines one type of identifier, for a fully-qualified domain name ("dns"). This document thus defines a new ACME identifier type 
+	  for telephone numbers ("tn"). This represents a telephone number, specifically a number of the type that is specified in the TN Authorization List certificate extension
+	  of <xref target="I-D.ietf-stir-certificates"/>.
+	  </t><t>
+	  
+	  </t>
+	  	<figure>
+        <artwork><![CDATA[
+	  {
+  "status": "valid",
+  "expires": "2015-03-01T14:09:00Z",
+
+  "identifier": {
+    "type": "tn",
+    "value": "2125551212"
+  },
+
+  "challenges": [
+    {
+      "type": "sms-01",
+      "status": "valid",
+      "validated": "2014-12-01T12:05:00Z",
+      "keyAuthorization": "SXQe-2XODaDxNR...vb29HhjjLPSggwiE"
+    }
+  ]
+}
+	  ]]></artwork>
+      </figure>
+    </section>
+	
+	<section anchor="challenges" title="Challenges for Telephone Numbers">
+	<t>
+	Proving that a device on the Internet has effective control over a telephone number is not as easy as proving control over an Internet resources like a DNS zone or a resource on
+	the web. Issuing certificates for telephone numbers is perhaps most closely analogous to certificates for email addresses: end user control over an email address boils down to the
+	capabilities to read and send email associated with that address. While a user typically has control over an email address for a long period of time, control over email addresses can change when users leave companies or other institutions, and addresses may subsequently end up in the control of another party. Moreover, while it is relatively easy to spoof the sender of any email address, as it unfortunately is with telephone numbers, it is harder to intercept traffic to a target email address or telephone number.
+	</t><t>
+	The likely challenges for proving effective control over a telephone number therefore rely largely on routing some kind of secret to the telephone number in question and requesting that the receiving device play that secret back to the ACME server. The Short Message Service (SMS) provides a key building block for challenges because of its ability to route a
+	secret addressed to a telephone number to a user-controlled device. However, because of the diverse capabilities
+	of Internet-connected devices that control telephone numbers, an SMS could be used in different ways for different challenges. Some devices will be able to interrogate their operating system to learn their own telephone number, for example, while others cannot. Some devices will be able to receive a text message and suppress it from being rendered to the user, while others cannot. 
+	</t><t>
+	Because the assignment of numbering resources can change over time, demonstrations of effective control must be regularly refreshed -- though again, because of the diverse capabilities
+	of the devices involved, different schemes for refreshing the challenge, ones that require less direct user supervision, may be available to some devices and not others.
+	</t>
+	 <section anchor="route" title="Telephone Number Routability Validation">
+      <t>
+	  With basic telephone number routability validation, the client in an ACME transaction proves its control over a telephone by proving that it can receive traffic sent to that telephone number over the PSTN. The ACME server challenges the client to dereference a URI containing a token that is sent to the client over SMS. Typically that token will be 
+	  embedded in a URL that the end user will dereference in order to be guided to a web resource that will enable account creation with the CA.
+	  <list><t>
+	  type (required, string): The string "sms-01"
+	  	  </t><t>
+		  token (required, string):
+    A random value that uniquely identifies the challenge. This value MUST have at least 128 bits of entropy, in order to prevent an attacker from guessing it. It MUST NOT contain any characters outside the URL-safe Base64 alphabet and MUST NOT contain any padding characters ("=").
+	  </t></list>
+
+	  </t>
+	  	  	<figure>
+        <artwork><![CDATA[
+		{
+  "type": "sms-01",
+  "token": "evaGxfADs6pSRb2LAv9IZf17Dt3juxGJ-PCt92wr-oA"
+}
+	  	  ]]></artwork>
+      </figure>
+	  <t>
+	  A client responds to this challenge by dereferencing the URI chosen by the ACME server. For this challenge, this may lead to an out-of-band requirement for the client to create
+	  a user account through human interaction. 
+	  </t>
+    </section>
+	
+	<section anchor="suppress" title="Advanced Routability Validating">
+      <t>Future versions of this specification will explore ways to increase the automation of the challenge process when the client device has an application capable
+	  of creating ACME accounts and requesting certificates to be issued.</t>
+    </section>
+	
+	<section anchor="range" title="Telephone Number Range Validation">
+      <t>Future versions of this specification will explore ways to validate bulk allocations of telephone numbers such as those used by IP PBXs.</t>
+    </section>
+	</section>
+	
+    <section anchor="Acknowledgments" title="Acknowledgments">
+      <t>We would like to thank you for your contributions to this problem statement and framework.</t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t>Future versions of this specification will include registrations for the ACME Identifier type and ACME Challenge type registries here.</t>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+      <t>TBD.</t>
+    </section>
+  </middle>
+  
+  
+  
+
+  <!--  *****BACK MATTER ***** -->
+
+  <back>
+    <!-- References split into informative and normative -->
+
+    <!-- There are 2 ways to insert reference entries from the citation libraries:
+    1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+    2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+       (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+    Both are cited textually in the same manner: by using xref elements.
+    If you use the PI option, xml2rfc will, by default, try to find included files in the same
+    directory as the including file. You can also define the XML_LIBRARY environment variable
+    with a value containing a set of directories to search.  These can be either in the local
+    filing system or remote ones accessed by http (http://domain/dir/... ).-->
+
+    <references title="Informative References">
+&RFC2119;
+&RFC7340;
+&I-D.peterson-modern-teri; 
+&I-D.rescorla-stir-fallback; 
+&I-D.ietf-acme-acme; 
+&I-D.ietf-stir-rfc4474bis;
+&I-D.ietf-stir-certificates;
+&I-D.ietf-stir-passport;
+  
+    </references>
+
+
+  </back>
+</rfc>
